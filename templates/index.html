@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Panorama Stitcher - Alpana Dubey</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Panorama Stitcher</h1>
+      <p>Welcome! This web app allows you to stitch two overlapping images to form a panoramic view. Developed by <strong>Alpana Dubey</strong>.</p>
+    </header>
+
+    <section class="info">
+      <h2>📷 How It Works</h2>
+      <ul>
+        <li>Upload two images with overlapping scenes.</li>
+        <li>Select a feature descriptor: SIFT or ORB.</li>
+        <li>The app detects keypoints, finds matches using KNN, computes homography, and stitches the images.</li>
+      </ul>
+      <h2>✨ Benefits</h2>
+      <ul>
+        <li>Create seamless panoramas quickly.</li>
+        <li>Visualize keypoints and matching features.</li>
+        <li>Choose between feature descriptors based on accuracy and speed.</li>
+      </ul>
+    </section>
+
+    <section class="form-section">
+      <form method="POST" action="/stitch" enctype="multipart/form-data">
+        <label>Upload Image 1:</label>
+        <input type="file" name="image1" accept="image/*" required>
+        <label>Upload Image 2:</label>
+        <input type="file" name="image2" accept="image/*" required>
+        <label>Feature Descriptor:</label>
+        <select name="descriptor">
+          <option value="sift">SIFT</option>
+          <option value="orb">ORB</option>
+        </select>
+        <button type="submit">Stitch Images</button>
+      </form>
+    </section>
+
+    {% if output %}
+    <section class="result">
+      <h2>🔍 Matched Features</h2>
+      <img src="{{ url_for('static', filename='matched.jpg') }}?{{ random() }}" alt="Matches">
+      <h2>🖼️ Stitched Panorama</h2>
+      <img src="{{ url_for('static', filename='output.jpg') }}?{{ random() }}" alt="Panorama">
+      <a href="{{ url_for('static', filename='output.jpg') }}" download>
+        <button>Download Panorama</button>
+      </a>
+    </section>
+    {% endif %}
+
+    {% if status %}
+    <p class="feedback-status">{{ status }}</p>
+    {% endif %}
+
+    <section class="contact-us">
+        <h2>📬 Contact Us</h2>
+        <p>If you have any questions, suggestions, or feedback, feel free to <a href="mailto:alpanadubey975@gmail.com">email Alpana Dubey directly</a>.</p>
+      </section>
+      
+
+    <footer>
+      <p>© 2025 Alpana Dubey. All rights reserved.</p>
+    </footer>
+  </div>
+</body>
+</html>
