@@ -1,8 +1,3 @@
-Here’s a clean and informative `README.md` file for your **Panorama Image Stitching Flask App**:
-
----
-
-```markdown
 # 🖼️ Panorama Image Stitcher (Flask App)
 
 This is a web-based application that allows users to stitch two overlapping images into a panorama using feature matching algorithms like **SIFT** or **ORB**. Built using **Flask** and **OpenCV**.
