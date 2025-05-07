@@ -92,8 +92,8 @@ Refer to your platform's setup guide or ask for detailed steps.
 
 ## 📸 Example Input
 
-<img src="uploads/input1.jpg" alt="Input1" width="500" />
-<img src="uploads/input2.jpg" alt="Input2" width="500" />
+<img src="uploads/input1.png" alt="Input1" width="500" />
+<img src="uploads/input2.png" alt="Input2" width="500" />
 
 ## 📸 Example Output
 
