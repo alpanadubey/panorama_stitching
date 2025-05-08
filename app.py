@@ -1,25 +1,27 @@
-import os, shutil, cv2, random, smtplib
-from flask import Flask, render_template, request, redirect, url_for
+import os, shutil, cv2, random
+from flask import Flask, render_template, request, redirect, url_for, session
 from werkzeug.utils import secure_filename
 from stitcher import stitch_images
 
 app = Flask(__name__)
+app.secret_key = 'alpana_secret_key'  # Required for session usage
 UPLOAD_FOLDER = 'uploads'
 STATIC_FOLDER = 'static'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
-
 
 def clear_folders():
     shutil.rmtree(UPLOAD_FOLDER, ignore_errors=True)
     os.makedirs(UPLOAD_FOLDER, exist_ok=True)
     for f in ['output.jpg', 'matched.jpg']:
-        try: os.remove(os.path.join(STATIC_FOLDER, f))
-        except FileNotFoundError: pass
+        try:
+            os.remove(os.path.join(STATIC_FOLDER, f))
+        except FileNotFoundError:
+            pass
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    output = session.pop('output', False)
+    return render_template('index.html', output=output, random=random.random)
 
 @app.route('/stitch', methods=['POST'])
 def stitch():
@@ -33,14 +35,16 @@ def stitch():
         f.save(path)
         paths.append(path)
 
-    img1 = cv2.imread(paths[1])
-    img2 = cv2.imread(paths[0])
+    # ✅ Correct the order: img1 = image1, img2 = image2
+    img1 = cv2.imread(paths[0])
+    img2 = cv2.imread(paths[1])
+
     stitched = stitch_images(img1, img2, descriptor)
     cv2.imwrite('static/output.jpg', stitched)
 
-    return render_template('index.html', output=True, random=random.random)
-
-
+    # ✅ Use session + redirect to avoid method error on mobile
+    session['output'] = True
+    return redirect(url_for('index'))
 
 if __name__ == '__main__':
     os.makedirs(UPLOAD_FOLDER, exist_ok=True)
