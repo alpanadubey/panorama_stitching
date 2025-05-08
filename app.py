@@ -17,6 +17,10 @@ def clear_folders():
             os.remove(os.path.join(STATIC_FOLDER, f))
         except FileNotFoundError:
             pass
+            
+@app.route('/stitch', methods=['GET'])
+def stitch_block():
+    return redirect(url_for('index'))
 
 @app.route('/')
 def index():
