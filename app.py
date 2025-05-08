@@ -24,6 +24,10 @@ def resize_image(img, max_width=1024):
         new_size = (int(img.shape[1] * scale), int(img.shape[0] * scale))
         return cv2.resize(img, new_size)
     return img
+    
+@app.route('/stitch', methods=['GET'])
+def stitch_block():
+    return redirect(url_for('index'))
 
 @app.route('/')
 def index():
