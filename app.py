@@ -4,7 +4,7 @@ from werkzeug.utils import secure_filename
 from stitcher import stitch_images
 
 app = Flask(__name__)
-app.secret_key = 'alpana_secret_key'  # Required for session usage
+app.secret_key = 'alpana_secret_key'
 UPLOAD_FOLDER = 'uploads'
 STATIC_FOLDER = 'static'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -17,16 +17,19 @@ def clear_folders():
             os.remove(os.path.join(STATIC_FOLDER, f))
         except FileNotFoundError:
             pass
-            
-@app.route('/stitch', methods=['GET'])
-def stitch_block():
-    return redirect(url_for('index'))
+
+def resize_image(img, max_width=1024):
+    if img.shape[1] > max_width:
+        scale = max_width / img.shape[1]
+        new_size = (int(img.shape[1] * scale), int(img.shape[0] * scale))
+        return cv2.resize(img, new_size)
+    return img
 
 @app.route('/')
 def index():
     output = session.pop('output', False)
-    return render_template('index.html', output=output, random=random.random)
-
+    error = session.pop('error', None)
+    return render_template('index.html', output=output, error=error, random=random.random)
 
 @app.route('/stitch', methods=['POST'])
 def stitch():
@@ -36,19 +39,24 @@ def stitch():
     paths = []
 
     for f in files:
+        if not f:
+            session['error'] = "Both images are required."
+            return redirect(url_for('index'))
         path = os.path.join(UPLOAD_FOLDER, secure_filename(f.filename))
         f.save(path)
         paths.append(path)
 
-    # ✅ Correct the order: img1 = image1, img2 = image2
-    img1 = cv2.imread(paths[0])
-    img2 = cv2.imread(paths[1])
+    try:
+        img1 = resize_image(cv2.imread(paths[0]))
+        img2 = resize_image(cv2.imread(paths[1]))
+        stitched = stitch_images(img1, img2, descriptor)
+        cv2.imwrite('static/output.jpg', stitched)
+        session['output'] = True
+    except MemoryError:
+        session['error'] = "Stitching failed: Server ran out of memory. Try smaller images."
+    except Exception as e:
+        session['error'] = f"Stitching failed: {str(e)}"
 
-    stitched = stitch_images(img1, img2, descriptor)
-    cv2.imwrite('static/output.jpg', stitched)
-
-    # ✅ Use session + redirect to avoid method error on mobile
-    session['output'] = True
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
