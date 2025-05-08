@@ -23,10 +23,6 @@ def index():
     output = session.pop('output', False)
     return render_template('index.html', output=output, random=random.random)
 
-@app.route('/stitch', methods=['GET'])
-def stitch_debug():
-    return "You sent a GET request to /stitch. This should be POST.", 405
-
 
 @app.route('/stitch', methods=['POST'])
 def stitch():
